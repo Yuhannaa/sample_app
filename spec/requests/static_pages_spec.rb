@@ -32,6 +32,35 @@ describe "Static pages" do
         end
       end
     end
+
+    # Exercises 10.5.1
+    # Add tests for the sidebar micropost counts (including proper pluralization).
+    describe "side bar content" do
+      let(:user) { FactoryGirl.create(:user) }
+
+      before do
+        sign_in user
+        visit root_path
+      end
+
+      it "should contain the micropost sidebar (with elements)" do
+        page.should have_selector("img.gravatar")
+        page.should have_selector("aside.span4", text: user.name)
+      end
+
+      it "should contain a single micropost with correct pluralization" do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        visit root_path
+        page.should have_selector("aside.span4", text: /1 micropost/)
+      end
+
+      it "should contain 2 microposts with correct pluralization" do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        visit root_path
+        page.should have_selector("aside.span4", text: "2 microposts")        
+      end        
+    end
   end
 
   describe "Help page" do

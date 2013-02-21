@@ -41,5 +41,35 @@ describe "MicropostPages" do
         expect { click_link "delete" }.to change(Micropost, :count).by(-1)
       end
     end
+
+    # Exercises 10.5.4
+    # Write a test to make sure delete links do not appear for microposts not created by the current user.
+    describe "as incorrect user" do
+      let(:another_user) { FactoryGirl.create(:user) }
+      let!(:another_users_micropost) { FactoryGirl.create(:micropost, user: another_user) }
+
+      before { visit user_path(another_user) }
+      # before { visit root_path }
+
+      it { should_not have_link('delete', href: micropost_path(another_users_micropost)) }
+    end
+  end
+
+  # Exercises 10.5.2
+  # Add tests for micropost pagination.
+  describe "micropost pagination" do
+    before do
+      100.times { FactoryGirl.create(:micropost, user: user) }
+      visit root_path
+    end
+    after { Micropost.delete_all }
+
+    it { should have_selector('div.pagination') }
+
+    it "should list each micropost" do
+      Micropost.paginate(page: 1).each do |micropost|
+        page.should have_selector('li', text: micropost.content)
+      end
+    end
   end
 end
